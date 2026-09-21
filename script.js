@@ -4,6 +4,7 @@ const presentBox = document.getElementById('present-box');
 const photoStrip = document.getElementById('photo-strip');
 const fadeOverlay = document.getElementById('fade-overlay');
 const videoStage = document.getElementById('video-stage');
+const bgMusic = document.getElementById('bg-music');
 
 // Create the final stage dynamically if it's not in HTML
 let finaleStage = document.getElementById('finale-stage');
@@ -62,6 +63,10 @@ capImg.addEventListener('pointerup', () => {
 
 // --- Phase 2: Reveal & Camera Pan ---
 function triggerReveal() {
+
+  bgMusic.volume = 1.0;
+  bgMusic.play().catch(e => console.log("Audio play prevented:", e));
+
   presentBox.style.transform = 'translateY(100vh)';
   const mask = document.getElementById('strip-mask');
   if (mask) mask.style.transform = 'translateY(100vh)';
@@ -193,6 +198,9 @@ function playVideosSequentially() {
 
 // --- Phase 5: The Final Message & Reset Loop ---
 function showFinalMessages() {
+
+  bgMusic.volume = 1.0;
+
   let textBackdrop = document.createElement('div');
   textBackdrop.style.position = 'absolute';
   textBackdrop.style.width = '100%';
@@ -259,6 +267,11 @@ function showFinalMessages() {
 
 // --- NEW: Reset Function ---
 function resetExperience() {
+
+  bgMusic.pause();
+  bgMusic.currentTime = 0;
+  bgMusic.volume = 1.0;
+
   // 1. Wipe the finale stage clean of all photos, videos, and text
   finaleStage.innerHTML = '';
   finaleStage.classList.add('hidden-stage');
