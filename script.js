@@ -17,6 +17,10 @@ if (!finaleStage) {
 
 let isDragging = false;
 let startY = 0;
+let audioUnlocked = false; 
+let audioCtx;
+let track;
+let gainNode;
 
 // Initialize the 7 strip photos on load
 document.addEventListener('DOMContentLoaded', () => {
@@ -35,6 +39,26 @@ capImg.addEventListener('pointerdown', (e) => {
   startY = e.clientY;
   capImg.setPointerCapture(e.pointerId);
   capImg.style.cursor = 'grabbing';
+  
+  if (!audioUnlocked) {
+    // 1. Initialize the Web Audio API
+    const AudioContext = window.AudioContext || window.webkitAudioContext;
+    audioCtx = new AudioContext();
+    
+    // 2. Connect your MP4 to the Gain Node (the volume booster)
+    track = audioCtx.createMediaElementSource(bgMusic);
+    gainNode = audioCtx.createGain();
+    track.connect(gainNode).connect(audioCtx.destination);
+    
+    // 3. Set your boosted starting volume (1.5 = 150%, 2.0 = 200%)
+    gainNode.gain.value = 2.0;
+
+    bgMusic.play().then(() => {
+      bgMusic.pause();
+      bgMusic.currentTime = 0;
+      audioUnlocked = true;
+    }).catch(err => console.log("Audio unlock pending:", err));
+  }
 });
 
 capImg.addEventListener('pointermove', (e) => {
@@ -63,8 +87,8 @@ capImg.addEventListener('pointerup', () => {
 
 // --- Phase 2: Reveal & Camera Pan ---
 function triggerReveal() {
-
-  bgMusic.volume = 1.0;
+  // CRITICAL FIX: Volume cannot exceed 1.0
+  gainNode.gain.value = 2.0; 
   bgMusic.play().catch(e => console.log("Audio play prevented:", e));
 
   presentBox.style.transform = 'translateY(100vh)';
@@ -77,18 +101,15 @@ function triggerReveal() {
   photoStrip.style.transform = `translateY(-2080px)`; 
   ribbon.style.transform = `translateY(-2160px)`; 
   
-  // Wait 11 seconds, then fade to black
   setTimeout(() => {
     fadeOverlay.style.opacity = '1';
     
-    // Swap stages after fade completes
     setTimeout(() => {
       document.getElementById('present-stage').style.display = 'none';
       finaleStage.classList.remove('hidden-stage');
       finaleStage.style.opacity = '1';
       fadeOverlay.style.opacity = '0'; 
       
-      // Begin Phase 3
       scatterBackgroundPhotos();
     }, 2000); 
     
@@ -97,12 +118,12 @@ function triggerReveal() {
 
 // --- Phase 3: The 44 Photo Scatter ---
 function scatterBackgroundPhotos() {
+  gainNode.gain.value = 2.0; 
   const totalPhotos = 46;
-  const popInSpeed = 300; // Milliseconds between each photo appearing
+  const popInSpeed = 300; 
   
   for (let i = 1; i <= totalPhotos; i++) {
     let img = document.createElement('img');
-    // Ensure you have photos named photo1.jpg through photo44.jpg in your assets folder
     img.src = `assets/photo${i}.png`; 
     img.className = 'final-scatter-photo';
     
@@ -113,7 +134,7 @@ function scatterBackgroundPhotos() {
     img.style.top = `${randomTop}%`;
     img.style.left = `${randomLeft}%`;
     img.style.transform = `translate(-50%, -50%) scale(0.5) rotate(${randomRotation}deg)`;
-    img.style.zIndex = i; // Ensure newer photos stack on top of older ones
+    img.style.zIndex = i; 
     
     finaleStage.appendChild(img);
 
@@ -123,12 +144,14 @@ function scatterBackgroundPhotos() {
     }, i * popInSpeed); 
   }
 
-  // Trigger videos to start right after the 44th photo lands
   setTimeout(playVideosSequentially, (totalPhotos * popInSpeed) + 1000);
 }
 
 // --- Phase 4: The 5 Videos ---
 function playVideosSequentially() {
+  // CRITICAL FIX: Set to 0.7 so it's slightly quieter than the 1.0 max volume
+  gainNode.gain.value = 0.7; 
+
   const videoFiles = [
     'assets/videos/1.mp4', 
     'assets/videos/2.mp4',
@@ -144,7 +167,7 @@ function playVideosSequentially() {
     { top: 75, left: 75 },
     { top: 50, left: 50 }
   ];
-  videoZones.sort(() => Math.random() - 0.5); // Shuffle zones
+  videoZones.sort(() => Math.random() - 0.5); 
   
   const videoElements = [];
 
@@ -153,13 +176,11 @@ function playVideosSequentially() {
     vid.src = file;
     vid.controls = true; 
     
-    // Video Playback Settings
     vid.autoplay = true; 
     vid.playsInline = true; 
     
-    // NEW: Unmute the video and lower its individual volume
     vid.muted = false; 
-    vid.volume = 0.4; // 0.4 means 40% volume. Adjust this decimal to make it louder or quieter!
+    vid.volume = 0.2; 
     
     vid.className = 'stacked-video';
     vid.style.zIndex = 100 + index;
@@ -191,7 +212,6 @@ function playVideosSequentially() {
       if (currentVideoIndex < videoElements.length) {
         setTimeout(showNextVideo, 6000); 
       } else {
-        // Wait 15 seconds after the 5th video before starting the final text
         setTimeout(showFinalMessages, 15000);
       }
     }
@@ -202,8 +222,8 @@ function playVideosSequentially() {
 
 // --- Phase 5: The Final Message & Reset Loop ---
 function showFinalMessages() {
-
-  bgMusic.volume = 1.0;
+  // CRITICAL FIX: Return to max 1.0 volume for the emotional finale
+  gainNode.gain.value = 2.0;
 
   let textBackdrop = document.createElement('div');
   textBackdrop.style.position = 'absolute';
@@ -249,16 +269,13 @@ function showFinalMessages() {
         textElement.style.opacity = '0';
         messageIndex++;
         
-        // If there are more messages, keep going
         if (messageIndex < messages.length) {
           setTimeout(showNextMessage, 1500); 
         } else {
-          // If all messages are done, trigger the final fade to black
           setTimeout(() => {
-            fadeOverlay.style.zIndex = '9999'; // Bring overlay to the very front
+            fadeOverlay.style.zIndex = '9999'; 
             fadeOverlay.style.opacity = '1';
             
-            // Wait 2 seconds for it to go fully black, then run the reset
             setTimeout(resetExperience, 2000);
           }, 1500);
         }
@@ -272,20 +289,16 @@ function showFinalMessages() {
 
 // --- NEW: Reset Function ---
 function resetExperience() {
-
   bgMusic.pause();
   bgMusic.currentTime = 0;
-  bgMusic.volume = 1.0;
+  gainNode.gain.value = 1.0;
 
-  // 1. Wipe the finale stage clean of all photos, videos, and text
   finaleStage.innerHTML = '';
   finaleStage.classList.add('hidden-stage');
   finaleStage.style.opacity = '0';
 
-  // 2. Unhide the present stage
   document.getElementById('present-stage').style.display = 'flex';
 
-  // 3. Remove transitions temporarily so things snap back instantly
   photoStrip.style.transition = 'none';
   ribbon.style.transition = 'none';
   presentBox.style.transition = 'none';
@@ -293,28 +306,21 @@ function resetExperience() {
   const mask = document.getElementById('strip-mask');
   if (mask) mask.style.transition = 'none';
 
-  // 4. Snap everything back to their starting coordinates
   presentBox.style.transform = 'translateY(0)';
   if (mask) mask.style.transform = 'translateY(0)';
   photoStrip.style.transform = 'translateY(0px)';
   ribbon.style.transform = 'translateY(-80px)';
 
-  // 5. Force the browser to register the snap before turning transitions back on
   void photoStrip.offsetWidth;
 
-  // 6. Restore the smooth drag transitions for the next time it gets pulled
   photoStrip.style.transition = 'transform 0.1s ease-out';
   ribbon.style.transition = 'transform 0.1s ease-out';
   
-  // Note: presentBox and strip-mask transitions will be reapplied in CSS automatically 
-  // on the next triggerReveal() call since we remove the inline 'none' style here:
   presentBox.style.transition = ''; 
   if (mask) mask.style.transition = '';
 
-  // 7. Fade the black overlay away to reveal the starting box
   fadeOverlay.style.opacity = '0';
   
-  // 8. Put the overlay back in its normal background position after fading
   setTimeout(() => {
     fadeOverlay.style.zIndex = '50';
   }, 2000);
