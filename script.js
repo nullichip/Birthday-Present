@@ -151,14 +151,18 @@ function playVideosSequentially() {
   videoFiles.forEach((file, index) => {
     let vid = document.createElement('video');
     vid.src = file;
-    vid.controls = false; 
-    vid.muted = false; 
+    vid.controls = true; 
+    
+    // Video Playback Settings
     vid.autoplay = true; 
     vid.playsInline = true; 
-    vid.className = 'stacked-video';
     
-    // Put videos above all 44 scattered photos (z-index 100+)
-    vid.style.zIndex = 100 + index; 
+    // NEW: Unmute the video and lower its individual volume
+    vid.muted = false; 
+    vid.volume = 0.4; // 0.4 means 40% volume. Adjust this decimal to make it louder or quieter!
+    
+    vid.className = 'stacked-video';
+    vid.style.zIndex = 100 + index;
     
     let zone = videoZones[index];
     let randomTop = zone.top + (Math.random() * 10 - 5); 
@@ -225,12 +229,13 @@ function showFinalMessages() {
   finaleStage.appendChild(textElement);
 
   const messages = [
-    "Happy birthday dad",
+    "Happy birthday Dad",
     "Although we might not always agree, you always continue to inspire us",
+    "To fight, to persevere, and to never give up",
     "and that's why we're here today",
-    "And though we don't say it much",
-    "We will forever and always love you",
-    "Happy birthday"
+    "And although we don't say it much",
+    "You should already know that we will forever and always love you",
+    "Happy 44th birthday, Dad. We love you."
   ];
 
   let messageIndex = 0;
