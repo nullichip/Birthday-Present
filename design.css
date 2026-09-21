@@ -1,0 +1,167 @@
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background-color: #fcf9f2; /* Warm background color */
+  font-family: sans-serif;
+  overflow: hidden; /* CRUCIAL: Hides the photo strip hanging below the cap */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  position: relative;
+}
+
+#present-stage {
+  position: relative; /* Acts as the anchor for the absolute layers inside */
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  scale: 2
+}
+
+.hidden-stage {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 1.5s ease-in-out;
+}
+
+/* --- Dragging Container --- */
+#ribbon {
+  position: absolute;
+  z-index: 30;
+  text-align: center;
+  transform: translateY(-80px); 
+  transition: transform 0.1s ease-out;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+#cap-img {
+  cursor: grab;
+  touch-action: none;
+}
+
+#ribbon img:first-of-type { /* Targeting the 'cap.png' */
+  width: 320px;
+}
+#photo-strip {
+  position: absolute;
+  z-index: 10; /* Bottom Layer */
+  top: 45%; /* Starts slightly lower to stay hidden in the box */
+  width: 200px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  transition: transform 0.1s ease-out; /* Matches ribbon drag smoothing */
+}
+
+/* Redesigning .photo into a vertical strip style */
+.photo {
+  display: block; /* Sequential vertical placement */
+  max-width: 180px; /* Fit conceptually 'inside' the strip width */
+}
+
+#strip-mask {
+  position: absolute;
+  z-index: 15; /* Sits exactly between the photos (10) and the box (20) */
+  background-color: #fcf9f2; /* Matches your body background */
+  width: 100%;
+  height: 80vh; /* Plenty of height to cover the trailing strip */
+  top: 48%; /* Start the mask right below the opening of the box */
+  transition: transform 2.5s cubic-bezier(0.25, 1, 0.5, 1); /* Matches the box fall speed */
+}
+
+#present-box {
+  position: absolute;
+  z-index: 20; /* Middle Layer */
+  width: 300px;
+  /* Switched transition to focus on smooth downward movement instead of fading */
+  transition: transform 2.5s cubic-bezier(0.25, 1, 0.5, 1); 
+}
+
+/* --- Phase 3 & Transitions remain consistent --- */
+#fade-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: black;
+  opacity: 0;
+  pointer-events: none;
+  z-index: 50;
+  transition: opacity 2s ease-in-out;
+}
+
+#video-stage {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: black;
+  /* Removed CSS Grid to allow for scattered placement */
+}
+
+.stacked-video {
+  position: absolute;
+  scale: 1;
+  max-height: 80vh; 
+  border: 4px solid #fff;
+  border-radius: 8px;
+  background-color: black;
+  opacity: 0; 
+  transition: opacity 2s ease-in-out;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+}
+
+.active-video {
+  opacity: 1; 
+}
+
+/* --- Phase 4: Finale --- */
+#finale-stage {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: black;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 60; /* Ensures it appears on top of the videos */
+  overflow: hidden;
+}
+
+.finale-message {
+  color: white;
+  font-family: 'Georgia', serif; /* Elegant font for the finale */
+  font-size: 2.5rem; /* Large, readable text */
+  text-align: center;
+  padding: 20px;
+  opacity: 0;
+  transition: opacity 1.5s ease-in-out; /* Smooth 1.5 second fade */
+  position: absolute;
+  max-width: 80%;
+  font-style: italic; /* Adds a nice touch for a quote/message */
+}
+
+.final-scatter-photo {
+  position: absolute;
+  max-width: 150px;
+  scale: 1.5; 
+  border: 8px solid white; /* Polaroid style border */
+  border-bottom-width: 24px; 
+  box-shadow: 0 10px 25px rgba(0,0,0,0.8);
+  opacity: 0;
+  /* Very quick 0.3s snap-in effect */
+  transition: opacity 0.3s ease-out, transform 0.3s ease-out; 
+}

@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Happy Birthday Dad!</title>
+  <link rel="stylesheet" href="design.css">
+</head>
+<body>
+
+  <div id="present-stage">
+    
+    <!-- 1. BOTTOM LAYER: Photo Strip (Hides behind the box) -->
+    <div id="photo-strip">
+      <!-- JS generatePhotos(7) will dynamically insert the photos here -->
+    </div>
+
+    <!-- 1.5 MASK LAYER (Hides the bottom of the strip) -->
+    <div id="strip-mask"></div>
+
+    <!-- 2. MIDDLE LAYER: Present Box -->
+    <img id="present-box" src="assets/box.png" alt="Present Box">
+    
+    <!-- 3. TOP LAYER: Draggable Cap/Ribbon -->
+    <div id="ribbon">
+      <!-- Added an ID specifically to the image for dragging -->
+      <img id="cap-img" src="assets/cap.png" alt="Pull me">
+    </div>
+
+  </div>
+  
+  <!-- Fade Overlay & Videos -->
+  <div id="fade-overlay"></div>
+  <div id="video-stage" class="hidden-stage"></div>
+
+  <!-- Phase 4: Text Sequence & Final Photos -->
+  <div id="finale-stage" class="hidden-stage">
+    <div id="finale-text" class="finale-message"></div>
+    <div id="finale-photos"></div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
